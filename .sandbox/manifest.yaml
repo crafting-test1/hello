@@ -1,0 +1,5 @@
+---
+daemons:
+  hello:
+    run:
+      cmd: 'echo Hello && env && ./hello'
