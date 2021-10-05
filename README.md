@@ -1,2 +1,1 @@
-# hello
-The Hello World Demo App
+# The Hello World Demo App
