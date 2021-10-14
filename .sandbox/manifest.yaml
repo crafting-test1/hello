@@ -3,3 +3,7 @@ daemons:
   hello:
     run:
       cmd: 'echo Hello && env && ./hello'
+
+  secure:
+    run:
+      cmd: './hello --secure -l :3001'
