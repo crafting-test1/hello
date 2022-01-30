@@ -67,7 +67,7 @@ func main() {
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Serving %s\n", r.RemoteAddr)
 			w.Header().Add("Content-type", "text/plain")
-			w.Write([]byte("Hello World!\n"))
+			w.Write([]byte("RQV-r0: Hello World!\n"))
 		}),
 	}
 	server.Serve(ln)
