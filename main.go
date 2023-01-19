@@ -55,6 +55,7 @@ func main() {
 		if conf, err = genTLSConfig(); err != nil {
 			log.Fatalf("Generate TLS config: %v", err)
 		}
+		conf.NextProtos = append(conf.NextProtos, "h2")
 		ln, err = tls.Listen("tcp", *listenAddr, conf)
 	} else {
 		ln, err = net.Listen("tcp", *listenAddr)
@@ -70,5 +71,6 @@ func main() {
 			w.Write([]byte("Hello World!\n"))
 		}),
 	}
+
 	server.Serve(ln)
 }
