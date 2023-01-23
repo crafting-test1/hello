@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"flag"
+	"fmt"
 	"log"
 	"math/big"
 	"net"
@@ -42,6 +43,10 @@ func genTLSConfig() (*tls.Config, error) {
 				PrivateKey:  keypair,
 			},
 		},
+		NextProtos: []string{
+			"h2",
+			"http/1.1",
+		},
 	}
 	return conf, nil
 }
@@ -55,7 +60,6 @@ func main() {
 		if conf, err = genTLSConfig(); err != nil {
 			log.Fatalf("Generate TLS config: %v", err)
 		}
-		conf.NextProtos = append(conf.NextProtos, "h2")
 		ln, err = tls.Listen("tcp", *listenAddr, conf)
 	} else {
 		ln, err = net.Listen("tcp", *listenAddr)
@@ -64,13 +68,28 @@ func main() {
 		log.Fatalf("Listen: %v", err)
 	}
 
-	server := http.Server{
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			log.Printf("Serving %s\n", r.RemoteAddr)
-			w.Header().Add("Content-type", "text/plain")
-			w.Write([]byte("Hello World!\n"))
-		}),
-	}
+	mux := http.NewServeMux()
+	mux.HandleFunc("/protocol", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Serving %s\n", r.RemoteAddr)
 
+		conn := "secure"
+		if r.TLS == nil {
+			conn = "insecure"
+		}
+
+		res := fmt.Sprintf("%s over %s connection.\n", r.Proto, conn)
+		w.Header().Add("Content-type", "text/plain")
+		w.Write([]byte(res))
+	})
+
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Serving %s\n", r.RemoteAddr)
+		w.Header().Add("Content-type", "text/plain")
+		w.Write([]byte("Hello World!\n"))
+	})
+
+	server := &http.Server{
+		Handler: mux,
+	}
 	server.Serve(ln)
 }
