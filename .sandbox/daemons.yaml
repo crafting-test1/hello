@@ -1,0 +1,8 @@
+daemons:
+  buildkit:
+    run:
+      cmd: >
+        sleep
+        infinity
+      env:
+      - PATH=/opt/sandboxd/docker:$PATH
